@@ -15,24 +15,23 @@ ui <- fluidPage(
     tags$link(rel = "shortcut icon", href = "diamond-solid.svg"),
     #tags$link(rel="stylesheet",href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"),
     HTML('<!-- Primary Meta Tags -->
-           <title>Blackjack App</title>
-           <meta name="title" content="Blackjack App">
-           <meta name="description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible.
-           This is second most balling Blackjack App in the SEC">
+<title>Blackjack App</title>
+<meta name="title" content="Blackjack App">
+<meta name="description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible. This is the second most balling Blackjack App in the SEC.">
 
-           <!-- Open Graph / Facebook -->
-           <meta property="og:type" content="website">
-           <meta property="og:url" content="https://aholmes23.shinyapps.io/Blackjack/">
-           <meta property="og:title" content="Blackjack App">
-           <meta property="og:description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible.">
-           <meta property="og:image" href="https://image.winudf.com/v2/image/Y29tLmpvZ2F0aW5hLmJsYWNramFja3JveWFsX3NjcmVlbl8wXzE1MzQ4MTc1ODJfMDc0/screen-0.jpg?fakeurl=1&type=.webp">
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aholmes23.shinyapps.io/Blackjack/">
+<meta property="og:title" content="Blackjack App">
+<meta property="og:description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible. This is the second most balling Blackjack App in the SEC.">
+<meta property="og:image:secure_url" content="https://ibb.co/k62kxyZ">
 
-           <!-- Twitter -->
-           <meta property="twitter:card" content="summary_large_image">
-           <meta property="twitter:url" content="https://aholmes23.shinyapps.io/Blackjack/">
-           <meta property="twitter:title" content="Blackjack App">
-           <meta property="twitter:description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible.">
-           <meta property="twitter:image" content="https://image.winudf.com/v2/image/Y29tLmpvZ2F0aW5hLmJsYWNramFja3JveWFsX3NjcmVlbl8wXzE1MzQ4MTc1ODJfMDc0/screen-0.jpg?fakeurl=1&type=.webp">')
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="https://aholmes23.shinyapps.io/Blackjack/">
+<meta property="twitter:title" content="Blackjack App">
+<meta property="twitter:description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible. This is the second most balling Blackjack App in the SEC.">
+<meta property="twitter:image:secure_url" content="https://ibb.co/k62kxyZ">')
   ),
 
   # Application title
