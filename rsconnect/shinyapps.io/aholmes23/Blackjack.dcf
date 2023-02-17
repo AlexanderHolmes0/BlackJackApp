@@ -4,10 +4,10 @@ username:
 account: aholmes23
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 8306558
-bundleId: 6846107
+appId: 8347629
+bundleId: 6859771
 url: https://aholmes23.shinyapps.io/Blackjack/
-when: 1676395618.35694
-lastSyncTime: 1676395618.35696
+when: 1676674668.9797
+lastSyncTime: 1676674668.97974
 asMultiple: FALSE
 asStatic: FALSE
