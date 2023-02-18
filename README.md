@@ -4,7 +4,7 @@ To get started press the Hit button. That will add one cookie to persistently sa
 More features to come in the future like card splitting and dealer reactions!
 ![](https://github.com/AlexanderHolmes0/BlackJackApp/blob/main/giphy.gif)
 
-*Note* If you have third-party cookies completely disabled then to gain persistent point storage you must turn them on for this site.
+*Note:* If you have third-party cookies completely disabled then to gain persistent point storage you must turn them on for this site.
 
-As always have fun and more to come! 
+**As always have fun and more to come!**
 
