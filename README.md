@@ -15,7 +15,7 @@ This will add one cookie to your browser to persistently save your points gained
 **As always have fun!**
 
 More features to come in the not so distant future
-- [ ] hand splitting i.e. (two cards same value can get two separate hands)
-- [ ] dealer reactions
-- [ ] crypto 'donations' for coins (hehe)
-- [ ] better background (currently dull AF, needs casino-like background)
+- hand splitting i.e. (two cards same value can get two separate hands)
+- dealer reactions
+- crypto 'donations' for coins (hehe)
+- better background (currently dull AF, needs casino-like background)
