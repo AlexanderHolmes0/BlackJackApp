@@ -16,11 +16,6 @@ ui <- add_cookie_handlers(fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "https://unpkg.com/cardsJS/dist/cards.min.css"),
     tags$script(src = "https://unpkg.com/cardsJS/dist/cards.min.js", type = "text/javascript"),
     tags$style(type = "text/css", "#button { vertical-align- middle; height- 50px; width- 100%; font-size- 30px;}"),
-    tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {
-                                                  background: #000069;
-                                                  border-top: 1px solid #000039 ;
-                                                  border-bottom: 1px solid #000039 ;}
-                           .irs-from, .irs-to, .irs-single { background: #000069 }")),
     tags$link(rel = "shortcut icon", href = "diamond-solid.svg"),
     HTML('<!-- Primary Meta Tags -->
 <title>Blackjack App</title>
@@ -73,42 +68,30 @@ ui <- add_cookie_handlers(fluidPage(
     id = "some",
     column(6,
       align = "center", offset = 3,
-      actionButton("hit", "Hit"),
-      animateUI("hit", animation = "shake", hover = T),
-      actionButton("stay", "Stand"),
-      animateUI("stay", animation = "shake", hover = T),
-      actionButton("split", "Split"),
-      animateUI("split", animation = "shake", hover = T),
-      textOutput("play"),
-      textOutput("deal"),
-      textOutput("win"),
-      textOutput("points"),
-      br(),
-      actionButton("refresh", "New Hand"),
-      actionButton("reset", "Reset Points"),
+      actionBttn('confirm','Confirm Bet',icon=icon('sack-dollar') ,style='minimal',color='success'),
+      actionBttn("hit", "Hit", style='minimal',icon=icon('gavel'),color='danger', no_outline=T),
+      actionBttn("stay", "Stand", style='minimal',icon=icon('person'),color='primary'),
+      actionBttn("split", "Split", style='minimal',icon=icon("arrows-split-up-and-left"),color='warning'),
       br(),
       br(),
+      span(textOutput("play"), style = "font-size:20px; font-family:arial; font-style:italic"),
+      span(textOutput("deal"), style = "font-size:20px; font-family:arial; font-style:italic"),
+      span(textOutput("win"), style = "font-size:20px; font-family:arial; font-style:italic"),
+      span(textOutput("points"), style = "font-size:20px; font-family:arial; font-style:italic"),
+      br(),
+      actionBttn("refresh", "New Hand", icon=icon('hands'),style='minimal',color='default'),
+      actionBttn("reset", "Reset Wallet",icon=icon('rotate-right') ,style='minimal',color='default'),
+      br(),
+      chooseSliderSkin(skin='Flat'),
       sliderInput("gamble", "Gamble Amount:", min = 0, max = 100, value = 1)
     )
   ),
-#plotlyOutput('pointhist')
 ))
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   
-#   output$pointhist <- renderPlotly({
-# if(length(hist()) > 0){
-#   
-#     ggplotly(ggplot(data.frame(hist()),aes(x = x, y=points, group =1))+
-#       geom_point()+
-#       labs(x='Hand Number', y='Dollars')+
-#       geom_line()+
-#       theme_bw())}
-#   })
-#   
-# hist <- reactiveVal()
-  
+
   create_deck <- function(num = 1) {
     deck <- expand.grid(values = c(2:10, "A", "Q", "K", "J"), suits = c("S", "C", "D", "H"), stringsAsFactors = F)
     single <- deck
@@ -180,14 +163,38 @@ server <- function(input, output, session) {
     output$points <- renderText({
       paste0("Wallet Left: ", "$", points())
     })
-    #hist(data.frame(points = rbind(hist(), points())))
+    
   })
 
   observeEvent(input$reset, {
     points(100)
   })
 
+  observeEvent(input$confirm,{
+    disable('gamble')
+    enable('hit')
+    enable('stay')
+    z(1)
+    if((sum(user()$point) == 21 | ((any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10)))){
+      points(update_points(points(), gamble(), "win"))
+      
+      enable("refresh")
+      disable("hit")
+      disable(("stay"))
+      disable('split')
+      sendSweetAlert(
+        session = session,
+        title = "You WON",
+        text = paste0("You Won:$ ", gamble(), " Keep the Streak!"),
+        type = "success"
+      )
+    }
+  })
+  
+  
+  
   observeEvent(input$hit, {
+    
     disable('split')
     if (sum(user()$point) <= 21) {
       shinyjs::disable("refresh")
@@ -275,6 +282,9 @@ server <- function(input, output, session) {
         type = "error"
       )
     } else if (sum(dealer()$point) == sum(user()$point)) {
+      shinyjs::enable("refresh")
+      shinyjs::disable("hit")
+      shinyjs::disable(("stay"))
       sendSweetAlert(
         session = session,
         title = "Tie",
@@ -286,10 +296,10 @@ server <- function(input, output, session) {
 
 
   observeEvent(input$refresh, {
-    shinyjs::enable("hit")
+    shinyjs::disable("hit")
     shinyjs::enable("stay")
     shinyjs::enable("refresh")
-    #disable('split')
+    enable("gamble")
     if (nrow(deck) <= 10) {
       deck <<- create_deck(4)
     }
@@ -300,7 +310,7 @@ server <- function(input, output, session) {
     output$deal <- renderText({''})
     v(0)
     x(0)
-print(nrow(deck))
+    z(0)
   })
 
   observeEvent(get_cookie("points"), {
@@ -328,25 +338,15 @@ print(nrow(deck))
   })
   
   observeEvent(user(),{
+    if(z()==0){disable('hit')
+      disable('stay')}
     shinyjs::disable('split')
     if(is.data.frame(user())) {
        if(user()$point[1] == user()$point[2] & x() == 0 & nrow(user())==2){
       shinyjs::enable("split")
       }
     }
-    if((sum(user()$point) == 21 | ((any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10)))){
-      points(update_points(points(), gamble(), "win"))
-      
-      shinyjs::enable("refresh")
-      shinyjs::disable("hit")
-      shinyjs::disable(("stay"))
-      sendSweetAlert(
-        session = session,
-        title = "You WON",
-        text = paste0("You Won:$ ", gamble(), " Keep the Streak!"),
-        type = "success"
-      )
-    }
+    
   })
   
   
@@ -361,11 +361,17 @@ print(nrow(deck))
   
   victim <- reactive({
     base <- "<div class='hhand-compact active-hand'>"
-    
+    if(z()==0){
+      HTML(paste0("<div class='hhand-compact active-hand'>
+                   <img class='card' src='cards/", sample(c("BLUE_BACK.svg", "RED_BACK.svg"), 1), "' style = width:150px>",
+                  "<img class='card' src='cards/", sample(c("BLUE_BACK.svg", "RED_BACK.svg"), 1), "' style = width:150px>" ))
+    }else{
     for (i in 1:nrow(user())) {
       base <- paste0(base, "<img class='card' src='cards/", user()$lookup[i], ".svg' style = width:150px>")
     }
-    HTML(base)
+      HTML(base)
+    }
+    
   })
   
 
@@ -386,7 +392,7 @@ print(nrow(deck))
   })
  
  
- 
+ z<- reactiveVal(0)
   x <- reactiveVal(0)
 observeEvent(input$split,{
   x(1)
@@ -396,17 +402,21 @@ observeEvent(input$split,{
   
   
   output$play <- renderText({
+    if(z()==1){
     if ((any(user()$value %in% c("A")) & sum(user()$point) - 1 == 10)) {
       paste("Player Score:", sum(user()$point) + 10)
     } else {
       paste0("Player Score: ", sum(user()$point))
-    }
+    }}
   })
 
 
 
   output$dealer <- renderUI({
-    if (v() == 0) {
+    if(z()==0){HTML(paste0("<div class='hhand-compact active-hand'>
+                   <img class='card' src='cards/", sample(c("BLUE_BACK.svg", "RED_BACK.svg"), 1), "' style = width:150px>
+                 <img class='card' src='cards/", sample(c("BLUE_BACK.svg", "RED_BACK.svg"), 1), "' style = width:150px>"))}
+    else if (v() == 0 & z() == 1) {
       HTML(paste0("<div class='hhand-compact active-hand'>
                    <img class='card' src='cards/", sample(c("BLUE_BACK.svg", "RED_BACK.svg"), 1), "' style = width:150px>
                  <img class='card' src='cards/", as.character(dealer()$lookup[1]), ".svg' style = width:150px>"))
