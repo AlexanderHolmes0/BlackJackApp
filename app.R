@@ -1,22 +1,21 @@
 library(shiny)
 library(shinyWidgets)
 library(dplyr)
-library(shinythemes)
 library(spsComps)
 library(cookies)
-library(data.table)
 library(shinyjs)
-library(ggplot2)
-library(plotly)
+
 # Define UI for application that draws a histogram
 ui <- add_cookie_handlers(fluidPage(
   useSweetAlert(),
   useShinyjs(),
+  
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "https://unpkg.com/cardsJS/dist/cards.min.css"),
     tags$script(src = "https://unpkg.com/cardsJS/dist/cards.min.js", type = "text/javascript"),
     tags$style(type = "text/css", "#button { vertical-align- middle; height- 50px; width- 100%; font-size- 30px;}"),
     tags$link(rel = "shortcut icon", href = "diamond-solid.svg"),
+    
     HTML('<!-- Primary Meta Tags -->
 <title>Blackjack App</title>
 <meta name="title" content="Blackjack App">
@@ -43,22 +42,16 @@ ui <- add_cookie_handlers(fluidPage(
  <link rel="stylesheet" href="banner.css" />
      <script src="banner.js"></script>'),
     tags$script(src = "banner.js")
-  ),
+),
 
   # Application title
   h1(icon("diamond"), "Blackjack", icon("diamond"), id = "title", align = "center"),
   animateUI("title", animation = "float"),
-  theme = shinytheme("darkly"),
-  setBackgroundColor(
-    color = "darkgreen",
-    gradient = c("radial"),
-    direction = c("bottom"),
-    shinydashboard = FALSE
-  ),
+
+ 
+setBackgroundImage(src="table.jpg"),
   uiOutput("dealer", align = "center"),
   animateUI("dealer", animation = "float", hover = TRUE, speed = "fast"),
-  br(),
-  br(),
   br(),
   br(),
   uiOutput("user", align = "center"),
@@ -68,29 +61,29 @@ ui <- add_cookie_handlers(fluidPage(
     id = "some",
     column(6,
       align = "center", offset = 3,
-      actionBttn('confirm','Confirm Bet',icon=icon('sack-dollar') ,style='minimal',color='success'),
-      actionBttn("hit", "Hit", style='minimal',icon=icon('gavel'),color='danger', no_outline=T),
-      actionBttn("stay", "Stand", style='minimal',icon=icon('person'),color='primary'),
-      actionBttn("split", "Split", style='minimal',icon=icon("arrows-split-up-and-left"),color='warning'),
+      actionBttn('confirm','Confirm Bet',icon=icon('sack-dollar') ,style='minimal',color='default'),
+      actionBttn("hit", "Hit", style='minimal',icon=icon('gavel'),color='default', no_outline=T),
+      actionBttn("stay", "Stand", style='minimal',icon=icon('person'),color='default'),
+      actionBttn("split", "Split", style='minimal',icon=icon("arrows-split-up-and-left"),color='default'),
       br(),
       br(),
       span(textOutput("play"), style = "font-size:20px; font-family:arial; font-style:italic"),
       span(textOutput("deal"), style = "font-size:20px; font-family:arial; font-style:italic"),
       span(textOutput("win"), style = "font-size:20px; font-family:arial; font-style:italic"),
-      span(textOutput("points"), style = "font-size:20px; font-family:arial; font-style:italic"),
+      span(textOutput("points"), style = "font-size:20px; font-family:arial; font-style:italic; color:white"),
       br(),
       actionBttn("refresh", "New Hand", icon=icon('hands'),style='minimal',color='default'),
       actionBttn("reset", "Reset Wallet",icon=icon('rotate-right') ,style='minimal',color='default'),
       br(),
-      chooseSliderSkin(skin='Flat'),
-      sliderInput("gamble", "Gamble Amount:", min = 0, max = 100, value = 1)
+      chooseSliderSkin(skin='Square'),
+      HTML('<p><span style="font-size:20px; font-family:arial; font-style:italic; color:white"</span>Gamble Amount</p>'),
+      sliderInput("gamble", "" ,min = 0, max = 100, value = 1)
     )
   ),
 ))
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  
 
   create_deck <- function(num = 1) {
     deck <- expand.grid(values = c(2:10, "A", "Q", "K", "J"), suits = c("S", "C", "D", "H"), stringsAsFactors = F)
@@ -205,11 +198,9 @@ server <- function(input, output, session) {
     if (sum(user()$point) > 21) {
       points(update_points(points(), gamble(), "lost"))
       print(points())
-      shinyjs::enable("refresh")
-      shinyjs::disable("hit")
-      shinyjs::disable("stay")
-
-      
+      enable("refresh")
+      disable("hit")
+      disable("stay")
 
       sendSweetAlert(
         session = session,
@@ -225,9 +216,9 @@ server <- function(input, output, session) {
     }
     if (sum(user()$point) == 21 | ((any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10))) {
       points(update_points(points(), gamble(), "win"))
-      shinyjs::enable("refresh")
-      shinyjs::disable("hit")
-      shinyjs::disable(("stay"))
+      enable("refresh")
+      disable("hit")
+      disable(("stay"))
 
       sendSweetAlert(
         session = session,
@@ -257,9 +248,9 @@ server <- function(input, output, session) {
       (sum(user()$point) > sum(dealer()$point) & sum(user()$point) < 21) | (sum(dealer()$point) > 21)) {
       points(update_points(points(), gamble(), "win"))
 
-      shinyjs::enable("refresh")
-      shinyjs::disable("hit")
-      shinyjs::disable(("stay"))
+      enable("refresh")
+      disable("hit")
+      disable(("stay"))
       sendSweetAlert(
         session = session,
         title = "You WON",
@@ -272,9 +263,9 @@ server <- function(input, output, session) {
       
       points(update_points(points(), gamble(), "lost"))
 
-      shinyjs::enable("refresh")
-      shinyjs::disable("hit")
-      shinyjs::disable(("stay"))
+      enable("refresh")
+      disable("hit")
+      disable(("stay"))
       sendSweetAlert(
         session = session,
         title = "You Lost",
@@ -403,7 +394,7 @@ observeEvent(input$split,{
   
   output$play <- renderText({
     if(z()==1){
-    if ((any(user()$value %in% c("A")) & sum(user()$point) - 1 == 10)) {
+    if ((any(user()$value %in% c("A")) & sum(user()$point) - 1 <= 10)) {
       paste("Player Score:", sum(user()$point) + 10)
     } else {
       paste0("Player Score: ", sum(user()$point))
