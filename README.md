@@ -6,7 +6,7 @@ To get started press the Hit button.
 
 This will add one cookie to your browser to persistently save your points gained/lost.
   
-![](https://github.com/AlexanderHolmes0/BlackJackApp/main/giphy.gif)
+![](https://github.com/AlexanderHolmes0/BlackJackApp/blob/main/giphy.gif)
 
 *Note:* If you have third-party cookies completely disabled then to gain persistent point storage you must turn them on for this site.
 
