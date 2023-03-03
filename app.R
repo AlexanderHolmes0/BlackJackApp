@@ -4,7 +4,7 @@ library(dplyr)
 library(spsComps)
 library(cookies)
 library(shinyjs)
-
+library(shinydashboard)
 # Define UI for application that draws a histogram
 ui <- add_cookie_handlers(fluidPage(
   useSweetAlert(),
@@ -75,6 +75,7 @@ setBackgroundImage(src="table.jpg"),
       actionBttn("refresh", "New Hand", icon=icon('hands'),style='minimal',color='default'),
       actionBttn("reset", "Reset Wallet",icon=icon('rotate-right') ,style='minimal',color='default'),
       br(),
+      actionBttn('hub',"Github",onclick=paste0("window.open('https://github.com/AlexanderHolmes0/BlackJackApp')") ,style='minimal',icon=icon("github"),color='default'),
       chooseSliderSkin(skin='Square'),
       HTML('<p><span style="font-size:20px; font-family:arial; font-style:italic; color:white"</span>Gamble Amount</p>'),
       sliderInput("gamble", "" ,min = 0, max = 100, value = 1)
