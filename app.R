@@ -56,7 +56,7 @@ ui <- add_cookie_handlers(fluidPage(
   br(),
   fluidRow(
     id = "some",
-    column(6,
+    column(width = 6,
       align = "center", offset = 3,
       actionBttn("confirm", "Confirm Bet", icon = icon("sack-dollar"), style = "minimal", color = "default"),
       actionBttn("hit", "Hit", style = "minimal", icon = icon("gavel"), color = "default", no_outline = T),
@@ -64,9 +64,9 @@ ui <- add_cookie_handlers(fluidPage(
       #actionBttn("split", "Split", style = "minimal", icon = icon("arrows-split-up-and-left"), color = "default"),
       br(),
       br(),
-      span(textOutput("play"), style = "font-size:20px; font-family:arial; font-style:italic, color:white"),
-      span(textOutput("deal"), style = "font-size:20px; font-family:arial; font-style:italic, color:white"),
-      span(textOutput("win"), style = "font-size:20px; font-family:arial; font-style:italic, color:white"),
+      span(uiOutput("play"), style = "font-size:20px; font-family:arial; font-style:italic; color:white"),
+      span(textOutput("deal"), style = "font-size:20px; font-family:arial; font-style:italic; color:white"),
+      span(textOutput("win"), style = "font-size:20px; font-family:arial; font-style:italic; color:white"),
       span(textOutput("points"), style = "font-size:20px; font-family:arial; font-style:italic; color:white"),
       br(),
       actionBttn("refresh", "New Hand", icon = icon("hands"), style = "minimal", color = "default"),
@@ -204,13 +204,12 @@ server <- function(input, output, session) {
         disable("hit")
         disable("stay")
 
-        show_toast(
+        sendSweetAlert(
+          session=session,
           title = "BUST",
           text = paste0("You lost:$ ", gamble(), " -- Start a new one Buster!"),
-          type = "error",
-          position = "top-end",
-          timer = 6000
-        )
+          type = "error"
+          )
         while (sum(dealer()$point) < 17) {
           dealer(hit_dealer(dealer(), deck))
           deck <<- update_deck_dealer(deck, dealer())
@@ -333,18 +332,18 @@ server <- function(input, output, session) {
     )
   })
 
-  observeEvent(user(), {
-    if (z() == 0) {
-      disable("hit")
-      disable("stay")
-    }
-    disable("split")
-    if (is.data.frame(user())) {
-      if (user()$values[1] == user()$values[2] & x() == 0 & z() == 1 & nrow(user()) == 2) {
-        shinyjs::enable("split")
-      }
-    }
-  })
+  # observeEvent(user(), {
+  #   if (z() == 0) {
+  #     disable("hit")
+  #     disable("stay")
+  #   }
+  #   disable("split")
+  #   if (is.data.frame(user())) {
+  #     if (user()$values[1] == user()$values[2] & x() == 0 & z() == 1 & nrow(user()) == 2) {
+  #       shinyjs::enable("split")
+  #     }
+  #   }
+  # })
 
 
   output$user <- renderUI({
@@ -391,14 +390,14 @@ server <- function(input, output, session) {
   z <- reactiveVal(0) # turns players cards around
   x <- reactiveVal(0)
 
-  observeEvent(input$split, {
-    x(1)
-  })
+  # observeEvent(input$split, {
+  #   x(1)
+  # })
 
 
 
 
-  output$play <- renderText({
+  output$play <- renderUI({
     if (z() == 1) {
       if ((any(user()$value %in% c("A")) & sum(user()$point) - 1 <= 10)) {
         paste("Player Score:", sum(user()$point) + 10)
