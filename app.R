@@ -19,20 +19,20 @@ ui <- add_cookie_handlers(fluidPage(
     HTML('<!-- Primary Meta Tags -->
 <title>Blackjack App</title>
 <meta name="title" content="Blackjack App">
-<meta name="description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible. Best Blackjack Game in the SEC.">
+<meta name="description" content="Best Blackjack Game in the SEC.">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://aholmes23.shinyapps.io/Blackjack/">
 <meta property="og:title" content="Blackjack App">
-<meta property="og:description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible. Best Blackjack Game in the SEC.">
+<meta property="og:description" content="Best Blackjack Game in the SEC.">
 <meta property="og:image" content="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3cycHo3dGRjM3Z3d25hcTdhZzI5djBlcDJxMzhod3h0dXBnNjhraSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FpAyRAuhkKcFJ6iXq8/giphy.gif">
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:url" content="https://aholmes23.shinyapps.io/Blackjack/">
 <meta property="twitter:title" content="Blackjack App">
-<meta property="twitter:description" content="Ever wanted to waste even more time? Well look no further, this blackjack app is designed to waste the maximum amount of your time possible. Best Blackjack Game in the SEC.">
+<meta property="twitter:description" content="Best Blackjack Game in the SEC.">
 <meta property="twitter:image" content="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3cycHo3dGRjM3Z3d25hcTdhZzI5djBlcDJxMzhod3h0dXBnNjhraSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FpAyRAuhkKcFJ6iXq8/giphy.gif">'),
     tags$style(src = "banner.css"),
     HTML('<div class="cookies-eu-banner hidden">
