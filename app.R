@@ -5,6 +5,7 @@ library(spsComps)
 library(cookies)
 library(shinyjs)
 library(shinydashboard)
+library(gitlink)
 
 # Define UI for application that draws a histogram
 ui <- add_cookie_handlers(fluidPage(
@@ -14,7 +15,7 @@ ui <- add_cookie_handlers(fluidPage(
     tags$link(rel = "stylesheet", type = "text/css", href = "https://unpkg.com/cardsJS/dist/cards.min.css"),
     tags$script(src = "https://unpkg.com/cardsJS/dist/cards.min.js", type = "text/javascript"),
     tags$style(type = "text/css", "#button { vertical-align- middle; height- 50px; width- 100%; font-size- 30px;}"),
-    tags$link(rel = "shortcut icon", href = "diamond-solid.svg"),
+    tags$link(rel = "shortcut icon", href = "favicon.ico"),
     HTML('<!-- Primary Meta Tags -->
 <title>Blackjack App</title>
 <meta name="title" content="Blackjack App">
@@ -49,6 +50,7 @@ ui <- add_cookie_handlers(fluidPage(
   setBackgroundImage(src = "table.jpg"),
   uiOutput("dealer", align = "center"),
   animateUI("dealer", animation = "float", hover = TRUE, speed = "fast"),
+  ribbon_css("https://github.com/AlexanderHolmes0/BlackJackApp",text = 'Github Repo Link', position = "right"),
   br(),
   br(),
   uiOutput("user", align = "center"),
@@ -75,7 +77,7 @@ ui <- add_cookie_handlers(fluidPage(
       chooseSliderSkin(skin = "Square"),
       HTML('<p><span style="font-size:20px; font-family:arial; font-style:italic; color:white"</span>Gamble Amount</p>'),
       sliderInput("gamble", "", min = 0, max = 100, value = 1),
-      actionBttn("hub", "GitHub", onclick = paste0("window.open('https://github.com/AlexanderHolmes0/BlackJackApp')"), style = "minimal", icon = icon("github"), color = "default")
+      #actionBttn("hub", "GitHub", onclick = paste0("window.open('https://github.com/AlexanderHolmes0/BlackJackApp')"), style = "minimal", icon = icon("github"), color = "default")
     )
   ),
 ))
@@ -83,7 +85,7 @@ ui <- add_cookie_handlers(fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
   create_deck <- function(num = 1) {
-    deck <- expand.grid(values = c(2:10, "A", "Q", "K", "J"), suits = c("S", "C", "D", "H"), stringsAsFactors = F)
+    deck <- expand.grid(values = c(2:10, "A", "Q", "K", "J"), suits = c("S", "C", "D", "H"), stringsAsFactors = FALSE)
     single <- deck
     if (num > 1) {
       for (i in 1:(num - 1)) {
@@ -171,7 +173,7 @@ server <- function(input, output, session) {
       enable("refresh")
       disable("hit")
       disable(("stay"))
-      disable("split")
+      #disable("split")
       sendSweetAlert(
         session = session,
         title = "You WON",
@@ -189,7 +191,7 @@ server <- function(input, output, session) {
 
 
   observeEvent(input$hit, {
-    disable("split")
+   # disable("split")
   
       if (sum(user()$point) <= 21) {
         shinyjs::disable("refresh")
@@ -310,8 +312,8 @@ server <- function(input, output, session) {
     z(0) # confirmation of bet switch
   })
 
-  observeEvent(get_cookie("points"), {
-    if (is.na(as.numeric(get_cookie("points")))) {
+  observeEvent(TRUE, {
+    if (is.null(as.numeric(get_cookie("points")))) {
       points(100)
       cookies::set_cookie(
         cookie_name = "points",
@@ -323,14 +325,14 @@ server <- function(input, output, session) {
     } else {
       points(as.numeric(get_cookie("points")))
     }
-  })
+  },once = TRUE)
 
   observeEvent(points(), {
     cookies::set_cookie(
       cookie_name = "points",
       cookie_value = points()
     )
-  })
+  },ignoreInit = TRUE)
 
   # observeEvent(user(), {
   #   if (z() == 0) {
