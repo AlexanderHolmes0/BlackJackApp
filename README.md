@@ -1,4 +1,4 @@
-### [Blackjack App](https://aholmes23.shinyapps.io/Blackjack/)
+### [Blackjack App](https://aholmes23.shinyapps.io/BlackJackApp/)
 
 Designed in Shiny with help from CardsJS. 
 
