@@ -80,7 +80,8 @@ ui <- add_cookie_handlers(fluidPage(
       #actionBttn("hub", "GitHub", onclick = paste0("window.open('https://github.com/AlexanderHolmes0/BlackJackApp')"), style = "minimal", icon = icon("github"), color = "default")
     )
   ),
-))
+)
+)
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -137,8 +138,6 @@ server <- function(input, output, session) {
     points
   }
 
-
-
   points <- reactiveVal()
 
   gamble <- reactive({
@@ -151,12 +150,12 @@ server <- function(input, output, session) {
   user <- reactiveVal(player(deck))
   dealer <- reactiveVal(dealer1(deck))
 
-  observeEvent(points(), {
-    output$points <- renderText({
-      paste0("Wallet Left: ", "$", points())
-    })
-  })
 
+  output$points <- renderText({
+    paste0("Wallet Left: ", "$", points())
+  })
+  
+  
   observeEvent(input$reset, {
     points(100)
   })
@@ -168,7 +167,7 @@ server <- function(input, output, session) {
     enable("stay")
     z(1)
     if ((sum(user()$point) == 21 | ((any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10)))) {
-      points(update_points(points(), gamble(), "win"))
+      points(update_points(as.numeric(points()), gamble(), "win"))
 
       enable("refresh")
       disable("hit")
@@ -185,13 +184,14 @@ server <- function(input, output, session) {
         deck <<- update_deck_dealer(deck, dealer())
       }
       v(1)
+     
     }
   })
 
 
 
   observeEvent(input$hit, {
-   # disable("split")
+
   
       if (sum(user()$point) <= 21) {
         shinyjs::disable("refresh")
@@ -200,7 +200,7 @@ server <- function(input, output, session) {
         deck <<- update_deck_user(deck, user())
       }
       if (sum(user()$point) > 21) {
-        points(update_points(points(), gamble(), "lost"))
+        points(update_points(as.numeric(points()), gamble(), "lost"))
 
         enable("refresh")
         disable("hit")
@@ -212,11 +212,12 @@ server <- function(input, output, session) {
           text = paste0("You lost:$ ", gamble(), " -- Start a new one Buster!"),
           type = "error"
           )
-        while (sum(dealer()$point) < 17) {
+        while (sum(dealer()$point) < 17 | any(dealer()$value %in% c("A")) & (sum(dealer()$point) - 1 == 10)) {
           dealer(hit_dealer(dealer(), deck))
           deck <<- update_deck_dealer(deck, dealer())
         }
         v(1)
+        
       }
       if (sum(user()$point) == 21 | ((any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10))) {
         points(update_points(points(), gamble(), "win"))
@@ -312,8 +313,13 @@ server <- function(input, output, session) {
     z(0) # confirmation of bet switch
   })
 
+  
+  
+  
+  
+  
   observeEvent(TRUE, {
-    if (is.null(as.numeric(get_cookie("points")))) {
+    if (is.null(get_cookie("points"))) {
       points(100)
       cookies::set_cookie(
         cookie_name = "points",
@@ -328,24 +334,13 @@ server <- function(input, output, session) {
   },once = TRUE)
 
   observeEvent(points(), {
-    cookies::set_cookie(
+    cookies::set_cookie_response(
       cookie_name = "points",
-      cookie_value = points()
+      cookie_value = as.character(points())
     )
-  },ignoreInit = TRUE)
+  })
 
-  # observeEvent(user(), {
-  #   if (z() == 0) {
-  #     disable("hit")
-  #     disable("stay")
-  #   }
-  #   disable("split")
-  #   if (is.data.frame(user())) {
-  #     if (user()$values[1] == user()$values[2] & x() == 0 & z() == 1 & nrow(user()) == 2) {
-  #       shinyjs::enable("split")
-  #     }
-  #   }
-  # })
+
 
 
   output$user <- renderUI({

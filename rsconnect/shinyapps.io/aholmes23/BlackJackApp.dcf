@@ -5,9 +5,9 @@ account: aholmes23
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9321556
-bundleId: 7354383
+bundleId: 7468791
 url: https://aholmes23.shinyapps.io/BlackJackApp/
-when: 1686933716.8603
-lastSyncTime: 1686933716.86031
+when: 1689650588.60243
+lastSyncTime: 1689650588.60248
 asMultiple: FALSE
 asStatic: FALSE
