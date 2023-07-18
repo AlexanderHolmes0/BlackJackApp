@@ -138,7 +138,7 @@ server <- function(input, output, session) {
     points
   }
 
-  points <- reactiveVal()
+  points <- reactiveVal(1000)
 
   gamble <- reactive({
     input$gamble
@@ -318,27 +318,27 @@ server <- function(input, output, session) {
   
   
   
-  observeEvent(TRUE, {
-    if (is.null(get_cookie("points"))) {
-      points(100)
-      cookies::set_cookie(
-        cookie_name = "points",
-        cookie_value = points()
-      )
-      output$points <- renderText({
-        "Setup Point Cookie"
-      })
-    } else {
-      points(as.numeric(get_cookie("points")))
-    }
-  },once = TRUE)
+  # observeEvent(points(), {
+  #   if (is.null(get_cookie("points"))) {
+  #     points(100)
+  #     cookies::set_cookie(
+  #       cookie_name = "points",
+  #       cookie_value = points()
+  #     )
+  #     output$points <- renderText({
+  #       "Setup Point Cookie"
+  #     })
+  #   } else {
+  #     points(as.numeric(get_cookie("points")))
+  #   }
+  # },once=TRUE,ignoreInit = TRUE)
 
-  observeEvent(points(), {
-    cookies::set_cookie_response(
-      cookie_name = "points",
-      cookie_value = as.character(points())
-    )
-  })
+  # observeEvent(points(), {
+  #   cookies::set_cookie_response(
+  #     cookie_name = "points",
+  #     cookie_value = as.character(points())
+  #   )
+  # })
 
 
 
