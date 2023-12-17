@@ -6,34 +6,24 @@ library(cookies)
 library(shinyjs)
 library(shinydashboard)
 library(gitlink)
+library(googleAuthR)
+library(ggplot2)
+
+options(googleAuthR.webapp.client_id = "1043541324641-po8v7b7s0rh3c33vm4erpaot8rfu0s4c.apps.googleusercontent.com")
+options(shiny.port=1221)
+source("helpers/helpers.R")
 
 # Define UI for application that draws a histogram
 ui <- add_cookie_handlers(fluidPage(
   useSweetAlert(),
   useShinyjs(),
+  useShinydashboard(),
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "https://unpkg.com/cardsJS/dist/cards.min.css"),
     tags$script(src = "https://unpkg.com/cardsJS/dist/cards.min.js", type = "text/javascript"),
     tags$style(type = "text/css", "#button { vertical-align- middle; height- 50px; width- 100%; font-size- 30px;}"),
     tags$link(rel = "shortcut icon", href = "favicon.ico"),
-    HTML('<!-- Primary Meta Tags -->
-<title>Blackjack App</title>
-<meta name="title" content="Blackjack App">
-<meta name="description" content="Best Blackjack Game in the SEC.">
-
-<!-- Open Graph / Facebook -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://aholmes23.shinyapps.io/Blackjack/">
-<meta property="og:title" content="Blackjack App">
-<meta property="og:description" content="Best Blackjack Game in the SEC.">
-<meta property="og:image" content="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3cycHo3dGRjM3Z3d25hcTdhZzI5djBlcDJxMzhod3h0dXBnNjhraSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FpAyRAuhkKcFJ6iXq8/giphy.gif">
-
-<!-- Twitter -->
-<meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="https://aholmes23.shinyapps.io/Blackjack/">
-<meta property="twitter:title" content="Blackjack App">
-<meta property="twitter:description" content="Best Blackjack Game in the SEC.">
-<meta property="twitter:image" content="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3cycHo3dGRjM3Z3d25hcTdhZzI5djBlcDJxMzhod3h0dXBnNjhraSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FpAyRAuhkKcFJ6iXq8/giphy.gif">'),
+    includeHTML("www/meta-tags.html"),
     tags$style(src = "banner.css"),
     HTML('<div class="cookies-eu-banner hidden">
        By clicking ”OK”, you agree to the storing of your Dollaz on your device. Blackjack is not liable for computer damages or addictive behavior changes.
@@ -50,7 +40,7 @@ ui <- add_cookie_handlers(fluidPage(
   setBackgroundImage(src = "table.jpg"),
   uiOutput("dealer", align = "center"),
   animateUI("dealer", animation = "float", hover = TRUE, speed = "fast"),
-  ribbon_css("https://github.com/AlexanderHolmes0/BlackJackApp",text = 'Github Repo Link', position = "right"),
+  ribbon_css("https://github.com/AlexanderHolmes0/BlackJackApp", text = "Github Repo Link", position = "right"),
   br(),
   br(),
   uiOutput("user", align = "center"),
@@ -58,12 +48,13 @@ ui <- add_cookie_handlers(fluidPage(
   br(),
   fluidRow(
     id = "some",
-    column(width = 6,
+    column(
+      width = 6,
       align = "center", offset = 3,
       actionBttn("confirm", "Confirm Bet", icon = icon("sack-dollar"), style = "minimal", color = "default"),
       actionBttn("hit", "Hit", style = "minimal", icon = icon("gavel"), color = "default", no_outline = T),
       actionBttn("stay", "Stand", style = "minimal", icon = icon("person"), color = "default"),
-      #actionBttn("split", "Split", style = "minimal", icon = icon("arrows-split-up-and-left"), color = "default"),
+      # actionBttn("split", "Split", style = "minimal", icon = icon("arrows-split-up-and-left"), color = "default"),
       br(),
       br(),
       span(uiOutput("play"), style = "font-size:20px; font-family:arial; font-style:italic; color:white"),
@@ -77,69 +68,20 @@ ui <- add_cookie_handlers(fluidPage(
       chooseSliderSkin(skin = "Square"),
       HTML('<p><span style="font-size:20px; font-family:arial; font-style:italic; color:white"</span>Gamble Amount</p>'),
       sliderInput("gamble", "", min = 0, max = 100, value = 1),
-      #actionBttn("hub", "GitHub", onclick = paste0("window.open('https://github.com/AlexanderHolmes0/BlackJackApp')"), style = "minimal", icon = icon("github"), color = "default")
+      # actionBttn("hub", "GitHub", onclick = paste0("window.open('https://github.com/AlexanderHolmes0/BlackJackApp')"), style = "minimal", icon = icon("github"), color = "default")
+      #googleSignInUI('demo'),
+      br(),
+      column(box(plotOutput("point_history"),collapsible = TRUE, collapsed = TRUE,solidHeader = TRUE, status = "success", title = "Wallet History"),offset = 3, width = 12)
     )
   ),
-)
-)
+))
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  create_deck <- function(num = 1) {
-    deck <- expand.grid(values = c(2:10, "A", "Q", "K", "J"), suits = c("S", "C", "D", "H"), stringsAsFactors = FALSE)
-    single <- deck
-    if (num > 1) {
-      for (i in 1:(num - 1)) {
-        deck <- rbind(deck, single)
-      }
-    }
-    deck$lookup <- paste0(deck$values, deck$suits)
-    deck$point <- suppressWarnings(ifelse(!is.na(as.numeric(as.character(deck$values))), as.numeric(as.character(deck$values)),
-      ifelse(deck$values %in% c("Q", "K", "J"), 10, 1)
-    ))
-
-    deck
-  }
-
-  dealer1 <- function(deck) {
-    dealer <- deck[sample(nrow(deck), 2, replace = F), ]
-    return(dealer)
-  }
-
-  player <- function(deck) { #' dealer deck passed'
-    player <- deck[sample(nrow(deck), 2, replace = F), ]
-    return(player)
-  }
-
-  hit_player <- function(player, deck) {
-    hit <- deck[sample(nrow(deck), 1, replace = F), ]
-    return(rbind(player, hit))
-  }
-
-  hit_dealer <- function(dealer, deck) {
-    hit <- deck[sample(nrow(deck), 1, replace = F), ]
-    return(rbind(dealer, hit))
-  }
-
-  update_deck_dealer <- function(x, dealer) {
-    deck[!(row.names(deck) %in% row.names(dealer)), ]
-  }
-  update_deck_user <- function(deck, player) {
-    deck[!(row.names(deck) %in% row.names(player)), ]
-  }
-
-  update_points <- function(points, gamble, todo) {
-    if (todo == "win") {
-      points <- points + gamble
-    }
-    if (todo == "lost") {
-      points <- points - gamble
-    }
-    points
-  }
-
-  points <- reactiveVal(1000)
-
+  
+  point_history <- c()
+  points <- reactiveVal(isolate(as.numeric(get_cookie("points",missing=100))))
+  
   gamble <- reactive({
     input$gamble
   })
@@ -148,12 +90,25 @@ server <- function(input, output, session) {
   deck <- create_deck(4)
 
   user <- reactiveVal(player(deck))
-  dealer <- reactiveVal(dealer1(deck))
+  dealer <- reactiveVal(dealer1(deck, isolate(user())))
 
+  output$point_history <- renderPlot({
+    points()
+    point_history <<- c(point_history, points())
+    ggplot(tibble(x = 1:length(point_history), y = point_history), aes(x, y)) +
+      geom_line(aes(group=1)) +
+      geom_point()+
+      theme_bw()+ 
+      labs(x = "Hand", y = "Wallet")+
+      scale_y_continuous(labels = scales::dollar)+
+      scale_x_continuous(breaks = seq(1, length(point_history), 1))
+    
+  })
 
   output$points <- renderText({
     paste0("Wallet Left: ", "$", points())
   })
+
   
   
   observeEvent(input$reset, {
@@ -166,91 +121,90 @@ server <- function(input, output, session) {
     enable("hit")
     enable("stay")
     z(1)
-    if ((sum(user()$point) == 21 | ((any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10)))) {
+    if (did_user_win(user())) {
+      
       points(update_points(as.numeric(points()), gamble(), "win"))
 
       enable("refresh")
       disable("hit")
       disable(("stay"))
-      #disable("split")
+      # disable("split")
       sendSweetAlert(
         session = session,
         title = "You WON",
         text = paste0("You Won:$ ", gamble(), " Keep the Streak!"),
         type = "success"
       )
-      while (sum(dealer()$point) < 17) {
+      while (keep_going_dealer(dealer())) {
         dealer(hit_dealer(dealer(), deck))
         deck <<- update_deck_dealer(deck, dealer())
       }
       v(1)
-     
     }
   })
 
 
 
   observeEvent(input$hit, {
+    if (keep_going_user(user())) {
+      shinyjs::disable("refresh")
 
-  
-      if (sum(user()$point) <= 21) {
-        shinyjs::disable("refresh")
-
-        user(hit_player(user(), deck))
-        deck <<- update_deck_user(deck, user())
-      }
-      if (sum(user()$point) > 21) {
-        points(update_points(as.numeric(points()), gamble(), "lost"))
-
-        enable("refresh")
-        disable("hit")
-        disable("stay")
-
-        sendSweetAlert(
-          session=session,
-          title = "BUST",
-          text = paste0("You lost:$ ", gamble(), " -- Start a new one Buster!"),
-          type = "error"
-          )
-        while (sum(dealer()$point) < 17 | any(dealer()$value %in% c("A")) & (sum(dealer()$point) - 1 == 10)) {
-          dealer(hit_dealer(dealer(), deck))
-          deck <<- update_deck_dealer(deck, dealer())
-        }
-        v(1)
-        
-      }
-      if (sum(user()$point) == 21 | ((any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10))) {
-        points(update_points(points(), gamble(), "win"))
-        enable("refresh")
-        disable("hit")
-        disable(("stay"))
-
-        sendSweetAlert(
-          session = session,
-          title = "You WON",
-          text = paste0("You Won:$ ", gamble(), " Keep the Streak!"),
-          type = "success"
-        )
-
-        while (sum(dealer()$point) < 17) {
-          dealer(hit_dealer(dealer(), deck))
-          deck <<- update_deck_dealer(deck, dealer())
-        }
-        v(1)
-      }
+      user(hit_player(user(), deck))
+      deck <<- update_deck_user(deck, user())
+    }
     
+    if (sum(user()$point) > 21) {
+      points(update_points(as.numeric(points()), gamble(), "lost"))
+
+      enable("refresh")
+      disable("hit")
+      disable("stay")
+
+      sendSweetAlert(
+        session = session,
+        title = "BUST",
+        text = paste0("You lost:$ ", gamble(), " -- Start a new one Buster!"),
+        type = "error"
+      )
+      while (keep_going_dealer(dealer())) {
+        dealer(hit_dealer(dealer(), deck))
+        deck <<- update_deck_dealer(deck, dealer())
+      }
+      v(1)
+    }
+    
+    if (did_user_win(user())) {
+      points(update_points(points(), gamble(), "win"))
+      enable("refresh")
+      disable("hit")
+      disable(("stay"))
+
+      sendSweetAlert(
+        session = session,
+        title = "You WON",
+        text = paste0("You Won:$ ", gamble(), " Keep the Streak!"),
+        type = "success"
+      )
+
+      while (keep_going_dealer(dealer())) {
+        dealer(hit_dealer(dealer(), deck))
+        deck <<- update_deck_dealer(deck, dealer())
+      }
+      v(1)
+    }
   })
 
   # define win logic when player hasnt won and is under 21
 
   observeEvent(input$stay, {
-    while (sum(dealer()$point) < 17) {
+    while (keep_going_dealer(dealer())) {
       dealer(hit_dealer(dealer(), deck))
       deck <<- update_deck_dealer(deck, dealer())
     }
+    
     v(1)
-    if (sum(user()$point) == 21 | (any(user()$value %in% c("A")) & (sum(user()$point) - 1) == 10) |
-      (sum(user()$point) > sum(dealer()$point) & sum(user()$point) < 21) | (sum(dealer()$point) > 21)) {
+    
+    if (user_dealer_comparison(user(), dealer())) {
       points(update_points(points(), gamble(), "win"))
 
       enable("refresh")
@@ -262,9 +216,8 @@ server <- function(input, output, session) {
         text = paste0("You Won:$ ", gamble(), " Keep the Streak!"),
         type = "success"
       )
-    } else if ((any(dealer()$value %in% c("A")) & (sum(dealer()$point) - 1 == 10)) |
-      (sum(user()$point > 21)) |
-      ((sum(user()$point) < sum(dealer()$point)) & (sum(dealer()$point) != sum(user()$point)) & (sum(dealer()$point) <= 21))) {
+    } else if (did_dealer_win(dealer()) | !(user_dealer_comparison(user(), dealer()))) {
+      
       points(update_points(points(), gamble(), "lost"))
 
       enable("refresh")
@@ -296,12 +249,17 @@ server <- function(input, output, session) {
     enable("refresh")
     enable("confirm")
     enable("gamble")
-
+    #take out cards from user and dealer
+    deck <<- update_deck_dealer(deck, dealer())
+    deck <<- update_deck_user(deck, user())
+    
     if (nrow(deck) <= 10) {
       deck <<- create_deck(4)
     }
+    #redeal cards
     user(player(deck))
-    dealer(dealer1(deck))
+    dealer(dealer1(deck,user()))
+    #take out cards just dealt
     deck <<- update_deck_dealer(deck, dealer())
     deck <<- update_deck_user(deck, user())
     output$deal <- renderText({
@@ -313,33 +271,19 @@ server <- function(input, output, session) {
     z(0) # confirmation of bet switch
   })
 
-  
-  
-  
-  
-  
-  # observeEvent(points(), {
-  #   if (is.null(get_cookie("points"))) {
-  #     points(100)
-  #     cookies::set_cookie(
-  #       cookie_name = "points",
-  #       cookie_value = points()
-  #     )
-  #     output$points <- renderText({
-  #       "Setup Point Cookie"
-  #     })
-  #   } else {
-  #     points(as.numeric(get_cookie("points")))
-  #   }
-  # },once=TRUE,ignoreInit = TRUE)
 
-  # observeEvent(points(), {
-  #   cookies::set_cookie_response(
-  #     cookie_name = "points",
-  #     cookie_value = as.character(points())
-  #   )
-  # })
-
+observeEvent(input$hit,{
+  cookies::set_cookie(
+    cookie_name = "points",
+    cookie_value = as.character(points()))
+}
+)
+observeEvent(input$stay,{
+  cookies::set_cookie(
+    cookie_name = "points",
+    cookie_value = as.character(points()))
+}
+)
 
 
 
