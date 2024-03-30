@@ -9,8 +9,8 @@ library(gitlink)
 library(googleAuthR)
 library(ggplot2)
 
-options(googleAuthR.webapp.client_id = "1043541324641-po8v7b7s0rh3c33vm4erpaot8rfu0s4c.apps.googleusercontent.com")
-options(shiny.port=1221)
+
+
 source("helpers/helpers.R")
 
 # Define UI for application that draws a histogram
@@ -26,7 +26,7 @@ ui <- add_cookie_handlers(fluidPage(
     includeHTML("www/meta-tags.html"),
     tags$style(src = "banner.css"),
     HTML('<div class="cookies-eu-banner hidden">
-       By clicking ”OK”, you agree to the storing of your Dollaz on your device. Blackjack is not liable for computer damages or addictive behavior changes.
+       By clicking ”OK”, you agree to the storing of your points on your device.
        <button>OK</button>
      </div>
  <link rel="stylesheet" href="banner.css" />
